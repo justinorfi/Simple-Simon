@@ -2,8 +2,42 @@
 <html>
 <head>
 	<title>Simple Simon Game</title>
+	<script type="text/javascript" src="/js/jquery2.js"></script>
+	<link rel="stylesheet" href="css/simon.css">
 </head>
 <body>
-
+<header>
+	<div id="topheader"><h1 class="heading">Simple Simon Game</h1></div>
+</header>
+<main>
+	<div id="container">
+		<div id="gameArea">
+			<div id="red"></div>
+			<div id="blue"></div>
+			<div id="yellow"></div>
+			<div id="green"></div>
+		</div>
+	</div>
+</main>
+<aside>
+	<div id="bottom">
+		<h3 id="instruct">Observe the Sequence above.</h3>
+		<h3 id="scorecard">Round: 0</h3>
+	</div>
+</aside>
+</div>
+<script>
+						//Begin JavaScript
+var round = 0;
+var sequence;
+var colors = ['red','blue','yellow','green'];
+var flash = function() {
+	$(this).css('opacity','1.0').animate({opacity:'.5'},400);
+}
+var createSequence = function() {
+	Math.floor(Math.random() * (4 - 0)) + 0;
+}
+$('#gameArea div').click(flash); // individual divs light up
+</script>
 </body>
 </html>
