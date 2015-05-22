@@ -12,10 +12,10 @@
 <main>
 	<div id="container">
 		<div id="gameArea">
-			<div id="red"></div>
-			<div id="blue"></div>
-			<div id="yellow"></div>
-			<div id="green"></div>
+			<div id="red" data="1"class="pad"></div>
+			<div id="blue" data="2" class="pad"></div>
+			<div id="yellow" data="3" class="pad"></div>
+			<div id="green" data="4" class="pad"></div>
 		</div>
 	</div>
 </main>
@@ -23,21 +23,109 @@
 	<div id="bottom">
 		<h3 id="instruct">Observe the Sequence above.</h3>
 		<h3 id="scorecard">Round: 0</h3>
+		<button class="playGame">Play Game</button>
 	</div>
 </aside>
 </div>
 <script>
 						//Begin JavaScript
-var round = 0;
-var sequence;
-var colors = ['red','blue','yellow','green'];
-var flash = function() {
-	$(this).css('opacity','1.0').animate({opacity:'.5'},400);
-}
-var createSequence = function() {
-	Math.floor(Math.random() * (4 - 0)) + 0;
-}
-$('#gameArea div').click(flash); // individual divs light up
+"use strict";
+var game = {
+	"round": 0,
+	"turn": 0,
+	"generatedSequence": '',
+	"playerSequence": '',
+	"active": false,
+	"handler": false,
+
+	init: function() {
+		if(this.handler === false) {			//Checks if the handler is currently active
+			this.initHandler();
+		};
+		this.newGame();
+	},
+
+	newGame: function() {
+		this.round = 1;
+		this.generatedSequence = '';
+		this.playerSequence = '';
+		this.turn = 0;
+	},
+
+	initHandler: function() {
+		var that = this;
+		if (this.active === true) {
+		$('.pad').on('mouseup',function() {
+			var press = $(this).data("data");
+			that.flash(press, 1);
+		});	
+		};
+	},
+
+	newRound: function() {
+		this.active = true;
+		this.generatedSequence = 0;
+		this.playerSequence = 0;
+		this.turn = 0;
+		this.createSequence();
+	},
+
+	flash: function(element, times) {			//flashes x element y times
+		var that = this;
+		if(times > 0) {
+			$(this).css('opacity','1.0').animate({opacity:'.3'},600);
+		}
+		if(times > 0) {
+			setTimeout(function(){
+				that.flash(element, times);		//time between each individual flash
+			}, 400);
+			times-=1;							//when times hits 0, stop flashing
+		}
+	},
+
+
+	logPlayInput: function() {
+		this.playerSequence.push(press);
+		this.checkSequence(press);
+	},
+
+	checkSequence: function(){
+		var that = this;
+		if(press !== generatedSequence[this.round]) {
+			this.incorrect();
+		}
+		else {									//Correct, so check next in sequence
+			this.turn++
+		};
+		if(this.turn === this.generatedSequence.length) {
+			this.round++;
+			this.active=false;
+			setTimeout(function(){
+				that.newRound
+			}, 2000);							//Wait 2 seconds before next round.
+		}
+	},
+
+	incorrect: function() {						//flash correct answer 5 times, then allow new game.
+		generatedSequence[this.round].flash(press, 5);
+		this.active=false;
+		$(".playGame").show();
+
+	},
+
+	createSequence: function(round) {
+	for (var i = 0;i<round;i++) {				//for each round, pushes a "color pad" to the array
+		this.generatedSequence.push(Math.floor(Math.random() * (5 - 1)) + 1);
+	}
+	}
+};
+$(document).ready(function(){
+	$(".playGame").click(function(){			//self explanatory
+		game.active = true;						//just kidding, starts game.
+		$(this).hide();
+		game.init();
+	});
+});
 </script>
 </body>
 </html>

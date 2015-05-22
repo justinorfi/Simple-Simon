@@ -1,6 +1,8 @@
 body {
 	box-sizing: border-box;
 	width: 100%;
+	padding: 0;
+	margin: 0;
 }
 #topheader {
 	text-align: center;
@@ -14,42 +16,48 @@ body {
 }
 #container {
 	width: 100%;
-	min-width: 400px;
-	min-height: 400px;
+	min-width: 398px;
+	min-height: 398px;
 }
 #gameArea {
-	width: 400px;
-	height: 400px;
+	width: 398px;
+	height: 398px;
 	border: 1px solid #000;
-	background-color: #eee;
+	background-color: #111;
 	margin: 1em auto;
 	overflow: hidden;
 	padding: 1em;
-	border-radius: .75em;
+	border-radius: 360px;
 }
-#gameArea div {
+#gameArea .pad {
 	width: 165px;
 	height: 165px;
 	border: 1px solid #000;
 	margin: 1em;
 	float: left;
-	border-radius: .75em;
+}
+#gameArea div:hover {
+	cursor: pointer;
 }
 #red {
 	background-color: #f00;
-	opacity: .5;
+	opacity: .3;
+	border-top-left-radius: 360px;
 }
 #blue {
 	background-color: #00f;
-	opacity: .5;
+	opacity: .3;
+	border-top-right-radius: 360px;
 }
 #yellow {
 	background-color: #ff0;
-	opacity: .5;
+	opacity: .3;
+	border-bottom-left-radius: 360px;
 }
 #green {
 	background-color: #0f0;
-	opacity: .5;
+	opacity: .3;
+	border-bottom-right-radius: 360px;
 }
 #bottom {
 	text-align: center;
