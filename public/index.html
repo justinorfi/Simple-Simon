@@ -35,6 +35,7 @@ var game = {
 	"turn": 0,
 	"generatedSequence": '',
 	"playerSequence": '',
+	"pad": '.pad',
 	"active": false,
 	"handler": false,
 
@@ -50,16 +51,19 @@ var game = {
 		this.generatedSequence = '';
 		this.playerSequence = '';
 		this.turn = 0;
+		this.newRound();
 	},
 
 	initHandler: function() {
 		var that = this;
-		if (this.active === true) {
 		$('.pad').on('mouseup',function() {
-			var press = $(this).data("data");
-			that.flash(press, 1);
+			if (this.active === true) {
+				var press = $(this).data("data");
+				that.flash($(this), 1);
+				that.logPlayerInput(press);
+			}
 		});	
-		};
+		this.handler=true;
 	},
 
 	newRound: function() {
@@ -68,6 +72,7 @@ var game = {
 		this.playerSequence = 0;
 		this.turn = 0;
 		this.createSequence();
+		this.playSequence();
 	},
 
 	flash: function(element, times) {			//flashes x element y times
@@ -104,6 +109,15 @@ var game = {
 				that.newRound
 			}, 2000);							//Wait 2 seconds before next round.
 		}
+	},
+
+	playSequence: function() {
+		var that=this;
+		$.each(this.generatedSequence, function(index, val) {
+			setTimeout(function() {
+				that.flash($(that.pad+val), 1);
+			}, 600);
+		});
 	},
 
 	incorrect: function() {						//flash correct answer 5 times, then allow new game.
