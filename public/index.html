@@ -12,133 +12,166 @@
 <main>
 	<div id="container">
 		<div id="gameArea">
-			<div id="red" data="1"class="pad"></div>
-			<div id="blue" data="2" class="pad"></div>
-			<div id="yellow" data="3" class="pad"></div>
-			<div id="green" data="4" class="pad"></div>
+			<div id="red" data="1" class="pad shape1"></div>
+			<div id="blue" data="2" class="pad shape2"></div>
+			<div id="yellow" data="3" class="pad shape3"></div>
+			<div id="green" data="4" class="pad shape4"></div>
+			<div class="circle"></div>
 		</div>
 	</div>
 </main>
 <aside>
+	<h3 id="instruct">Observe the Sequence above.</h3>
 	<div id="bottom">
-		<h3 id="instruct">Observe the Sequence above.</h3>
-		<h3 id="scorecard">Round: 0</h3>
 		<button class="playGame">Play Game</button>
+		<h3 id="scorecard">Round: <span id='score'>0</span><span id='current'>0</span></h3>
 	</div>
 </aside>
 </div>
 <script>
-						//Begin JavaScript
-"use strict";
-var game = {
-	"round": 0,
-	"turn": 0,
-	"generatedSequence": '',
-	"playerSequence": '',
-	"pad": '.pad',
-	"active": false,
-	"handler": false,
-
-	init: function() {
-		if(this.handler === false) {			//Checks if the handler is currently active
-			this.initHandler();
-		};
-		this.newGame();
+var game={ //game object
+	level: 1, //current level
+	turn: 0, //current turn
+	active: false, //whether a turn is active or not
+	handler: false, // whether the click handler is active
+	shape: '.shape', // cached string for the pad class
+	genSequence: [], //array containing the generated/randomized pads
+	plaSequence: [], //array containing the users pad selections
+	
+	init: function(){					//initializes the game
+		if(this.handler === false){		//checks to see if handlers are already active
+			this.initPadHandler();		//if not activate them
+		}
+		this.newGame();				//reset the game defaults
 	},
 
-	newGame: function() {
-		this.round = 1;
-		this.generatedSequence = '';
-		this.playerSequence = '';
-		this.turn = 0;
-		this.newRound();
-	},
+	initPadHandler: function(){
 
-	initHandler: function() {
-		var that = this;
-		$('.pad').on('mouseup',function() {
-			if (this.active === true) {
-				var press = $(this).data("data");
-				that.flash($(this), 1);
-				that.logPlayerInput(press);
+		that=this;
+		$('.pad').on('mouseup',function(){
+			if(that.active===true){
+				var pad=parseInt($(this).attr('data'));
+				console.log(pad);
+				that.flash($(this),1);
+				that.logPlayerSequence(pad);
 			}
-		});	
+		});
+
 		this.handler=true;
+
 	},
 
-	newRound: function() {
-		this.active = true;
-		this.generatedSequence = 0;
-		this.playerSequence = 0;
-		this.turn = 0;
-		this.createSequence();
-		this.playSequence();
+	newGame: function(){			//resets the game and generates a new level
+		this.level=1;
+		this.newLevel();
 	},
 
-	flash: function(element, times) {			//flashes x element y times
-		var that = this;
-		if(times > 0) {
-			$(this).css('opacity','1.0').animate({opacity:'.3'},600);
+	newLevel: function(){
+		this.turn=0;
+		this.active=true;
+		
+		this.randomizePad(this.level); //randomize pad with the current level
+		this.displaySequence(); //show the sequence
+		this.displayLevel(); //show the current level
+	},
+	
+	flash: function(element, times){ 	//'element' flashes 'times' times
+
+		var that = this;						//cache this
+
+		if(times > 0){							//make sure we are supposed to flash
+			element.stop().animate({opacity: '1'}, {		//animate the element to appear to flash
+				duration: 50,
+				complete: function(){
+				element.stop().animate({opacity: '0.3'}, 200);
+				}
+			});												//end animation
 		}
-		if(times > 0) {
-			setTimeout(function(){
-				that.flash(element, times);		//time between each individual flash
-			}, 400);
-			times-=1;							//when times hits 0, stop flashing
+
+		if (times > 0) {									//call the flash function again until done the correct amount of times 
+			setTimeout(function () {
+				that.flash(element, times);
+			}, 600);
+			times -= 1;						//times - 1 for each time it's called
+		}
+		if (times == 0) {
+			$('#instruct').text('Repeat the sequence.');
+
 		}
 	},
 
-
-	logPlayInput: function() {
-		this.playerSequence.push(press);
-		this.checkSequence(press);
+	randomizePad: function(passes){			//push random numbers to the generated array foor each number function passes
+			this.genSequence.push(Math.floor(Math.random() * 4) + 1);
 	},
 
-	checkSequence: function(){
-		var that = this;
-		if(press !== generatedSequence[this.round]) {
-			this.incorrect();
-		}
-		else {									//Correct, so check next in sequence
-			this.turn++
-		};
-		if(this.turn === this.generatedSequence.length) {
-			this.round++;
+	logPlayerSequence: function(pad){		//log the player selected pad to user array and call the checker function
+		this.plaSequence.push(pad);
+		this.checkSequence(pad);
+		this.displayCurrent(this.turn);
+	},
+
+	displayCurrent: function(turn){
+		$('#current').text(turn);
+	},
+
+	checkSequence: function(pad){			//checker function to test if the pad the user pressed was next in the sequence
+		that=this;
+
+		if(pad !== this.genSequence[this.turn]){	//if not correct 
+				
+				this.incorrectSequence();			//call incorrectSequence
+
+			}else{									//if correct
+				this.turn++;						//incrememnt the turn
+
+			}
+
+		if(this.turn === this.genSequence.length){	//if completed the whole sequence
+			
+			this.level++;			//increment level, display it, disable the pads wait 1.5 second and then reset the game
 			this.active=false;
 			setTimeout(function(){
-				that.newRound
-			}, 2000);							//Wait 2 seconds before next round.
+				that.newLevel();
+			},1500);
 		}
 	},
 
-	playSequence: function() {
+	displaySequence: function(){					//display the generated sequence to the user
 		var that=this;
-		$.each(this.generatedSequence, function(index, val) {
-			setTimeout(function() {
-				that.flash($(that.pad+val), 1);
-			}, 600);
+		setTimeout(function(){
+			$('#instruct').text('Observe the Sequence above.');
+		},500*that.genSequence.length);
+		$.each(this.genSequence, function(index, val) {		//iterate over each value in the generated array
+			setTimeout(function(){
+				that.flash($(that.shape+val),1);
+			},500*index);				// multiply timeout by how many items in the array so that they play sequentially
 		});
 	},
 
-	incorrect: function() {						//flash correct answer 5 times, then allow new game.
-		generatedSequence[this.round].flash(press, 5);
-		this.active=false;
-		$(".playGame").show();
-
+	displayLevel: function(){
+		$('#score').text(this.level);
 	},
 
-	createSequence: function(round) {
-	for (var i = 0;i<round;i++) {				//for each round, pushes a "color pad" to the array
-		this.generatedSequence.push(Math.floor(Math.random() * (5 - 1)) + 1);
-	}
+	incorrectSequence: function(){						//if user makes a mistake
+		var correctPad = this.genSequence[this.turn],		//cache the pad number that should have been pressed
+			that = this;
+
+			this.active=false;					//handler is deactivated
+
+		setTimeout(function(){							//flash the pad 4 times that should have been pressed
+			that.flash($(that.shape+correctPad),4);
+		},500);
+
+		this.plaSequence.length=0;						//reset the sequence arrays
+		this.genSequence.length=0;
+		$('.playGame').show();								//enable the start button again and start over.
 	}
 };
 $(document).ready(function(){
-	$(".playGame").click(function(){			//self explanatory
-		game.active = true;						//just kidding, starts game.
+	$('.playGame').on('mouseup', function(){				//initialize a game when the start button is clicked
 		$(this).hide();
 		game.init();
-	});
+	});	
 });
 </script>
 </body>
